@@ -1,74 +1,110 @@
-📢 InstaClaim - Insurance Claim Support Chatbot 💬
-An AI-powered Insurance Support Chatbot built using Streamlit, LangChain, and Ollama LLMs, with OCR (Image-to-Text) support for reading insurance documents and images.
+# 📢 InstaClaim - Insurance Claim Support Chatbot 💬
 
-✨ Features:
-✅ Insurance-specific chatbot conversations
-✅ Supports multiple Ollama models (like Mistral, Llama3, Gemma, etc.)
-✅ Upload insurance documents/images and extract text using Tesseract OCR
-✅ Clean Streamlit Web UI
-✅ Maintains chat history
-✅ Dynamic model selection
-✅ Image preview + extracted text display
+A smart, **AI-powered insurance claim assistant chatbot** built using **LangChain**, **Streamlit**, **OCR (Tesseract)**, and **Ollama's Phi3 LLM**, designed to help users **understand**, **analyze**, and **process insurance claim queries and documents**.
 
-🛠️ Tech Stack:
-Python 🐍
-Streamlit 📲
-LangChain 🧠
-Ollama (Local LLM Server) 🤖
-pytesseract (OCR) 🖼️
-Pillow (Image processing)
-Import / Library	Why it is used in your chatbot project
-from langchain.callbacks.base import BaseCallbackHandler	✅ This handles streaming of LLM (Large Language Model) responses in real-time inside the Streamlit UI. This lets you see the AI's answer building word by word (streamed).
-from langchain.chat_models import ChatOllama	✅ This connects LangChain with Ollama models (like Mistral, Phi3) running locally on your machine. It sends your prompt to Ollama and gets AI replies.
-from langchain.schema import HumanMessage, AIMessage	✅ Helps store and structure chat history in a chat-like format (separating Human and AI messages). This is needed by LangChain to understand multi-turn conversations.
-import urllib.request, json	✅ Used for API communication with the Ollama server to get the list of installed models (via Ollama /api/tags endpoint).
-import streamlit as st	✅ This is for creating the Streamlit web-based User Interface. Used for building buttons, inputs, sidebar, chat layout, etc.
-from PIL import Image	✅ PIL (Python Imaging Library) helps to open, read and display uploaded images (insurance documents, forms, etc.).
-import pytesseract	✅ This is the OCR engine (Optical Character Recognition). It reads text content from uploaded images (scanned documents).
-🚀 Quick Start:
-✅ 1. Clone the Repository:
+---
+
+## 🚀 About the Project
+
+Filing an insurance claim is often **confusing**, **slow**, and **document-heavy**.  
+**InstaClaim solves this by:**
+
+- ✅ Allowing users to **upload images of insurance documents (JPG/PNG)**
+- ✅ **Extracting important text** using **OCR (Tesseract)**
+- ✅ **Analyzing the extracted text** and giving **insurance-specific guidance**
+- ✅ Answering user queries in a **conversational AI chat format**
+- ✅ Running **locally** using **Ollama's Phi3 model** (No external API keys needed)
+
+---
+
+## ✨ Features 
+
+
+- ✅ **Model Support:**  
+  Focused exclusively on **Phi-3 (via Ollama)** for **local LLM inferencing**.
+
+- ✅ **Streamlit UI:**  
+   **sleek Black and Gold theme** for **presentation appeal**.
+
+- ✅ **OCR + Context-aware AI:**  
+  - Automatically **extracts text** from uploaded **insurance images** using **Tesseract OCR**.  
+  - **Injects the extracted content into the AI chat** for **smarter, context-based responses**.
+
+---
+
+## 🏗️ Tech Stack Used
+
+| Feature           | Technology                        |
+|-------------------|-----------------------------------|
+| Chatbot UI        | Streamlit + LangChain             |
+| Local LLM         | Ollama (**Phi3 model only**)       |
+| OCR               | Tesseract                         |
+| Text Extraction   | pytesseract + PIL                |
+| Backend Handling  | Python                           |
+
+---
+
+## 🧑‍💻 Installation & Run Locally
+
+```bash
+# Clone the repo
 git clone https://github.com/Vivek5143/instaclaim-insurance-chatbot.git
 cd instaclaim-insurance-chatbot
-✅ 2. Set up Virtual Environment (Recommended):
 
+# Setup virtual environment (For Windows users)
 python -m venv .venv
-.venv\Scripts\activate   # On Windows
-✅ 3. Install Python Dependencies:
+.\.venv\Scripts\activate
 
+# Install required libraries
 pip install -r requirements.txt
-✅ 4. Install Tesseract OCR (For Image-to-Text Extraction): Download from: https://github.com/tesseract-ocr/tesseract
 
-After installation, update this line in your main.py file:
+# Run Ollama Server (Ensure Phi3 model is pulled)
+ollama serve
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-(Change the path if your installation location is different.)
-✅ 5. Start Ollama Server & Pull Required LLM Models:
-
-ollama pull mistral
-ollama pull llama3
-ollama pull gemma
-Make sure Ollama is running on:
-http://localhost:11434
-✅ 6. Run the Chatbot Locally:
-
+# Run Streamlit App
 streamlit run main.py
-After running, open your browser and go to:
+```
+# 📝 Usage Instructions
+
+✅ **Open Streamlit UI** (after running the above setup commands)
+
+✅ **Choose Phi3 model** from the sidebar  
+*(Model selector already filtered to Phi3 for simplicity)*
+
+✅ **Upload insurance document image (optional)**  
+*(Supported formats: PNG, JPG, JPEG)*
+
+✅ **Ask your insurance-related query**  
+*(Example: "How do I claim for hospitalization?" or "Is my policy covering theft?")*
+
+✅ **Get instant, context-aware, insurance-specific AI guidance!**
+
+---
+
+## 📑 License and Reference Attribution:
+
+This project is released under the **MIT License**.
+
+**Reference Project (Inspiration & Learning Source):**  
+[ai-chatbot-ollama by Karim Lalani (2023)](https://github.com/karim-lalani/ai-chatbot-ollama)
+
+While this project draws **conceptual reference and learning inspiration** from the above open-source project,  
+**InstaClaim has been independently customized and redesigned by Vivek Dalvi for the DSW Hackathon 2025**,  
+focusing specifically on the **insurance claim support domain** with added OCR, UI theming, and Phi3 LLM integration.
 
 
-Current Project Customization & Deployment: Vivek5143
+## 📌 Important Notes for Judges / Panel Members
 
-✅ Possible Future Improvements: Deploy on Streamlit Cloud or Hugging Face Spaces
+✅ **All LLM processing happens locally** using **Ollama Phi3 model**
 
-Add PDF document reading
+✅ **No external API keys or cloud services used**
 
-Add voice-to-text support
+✅ Fully **customized for the insurance claim domain**
 
-Style improvements and advanced UI
+✅ Demonstrates **OCR → NLP → LLM pipeline integration**
 
-Persistent conversation history (database or file)
+✅ **Ethical open-source usage** with **proper attribution**
 
-Screenshot 2025-06-27 224127 Screenshot 2025-06-27 224319 Screenshot 2025-06-27 224456 Screenshot 2025-06-27 224624
+✅ Ready for **offline testing**, **local demo**, and **hackathon showcase**
 
-✅ License: This project is intended for learning and demonstration purposes only.
-
-Made with ❤️ for Insurance Support Chatbot Development 🚀
+---

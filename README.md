@@ -68,8 +68,6 @@ streamlit run main.py
 
 ✅ **Open Streamlit UI** (after running the above setup commands)
 
-✅ **Choose Phi3 model** from the sidebar  
-*(Model selector already filtered to Phi3 for simplicity)*
 
 ✅ **Upload insurance document image (optional)**  
 *(Supported formats: PNG, JPG, JPEG)*

@@ -21,7 +21,7 @@ Filing an insurance claim is often **confusing**, **slow**, and **document-heavy
 
 
 - ✅ **Model Support:**  
-  Focused exclusively on **Phi-3 (via Ollama)** for **local LLM inferencing**.
+  Focused exclusively on **Phi-3:mini (via Ollama)** for **local LLM inferencing**.
 
 - ✅ **Streamlit UI:**  
    **sleek Black and Gold theme** for **presentation appeal**.
@@ -37,7 +37,7 @@ Filing an insurance claim is often **confusing**, **slow**, and **document-heavy
 | Feature           | Technology                        |
 |-------------------|-----------------------------------|
 | Chatbot UI        | Streamlit + LangChain             |
-| Local LLM         | Ollama (**Phi3 model only**)       |
+| Local LLM         | Ollama (**Phi3:mini model only**)       |
 | OCR               | Tesseract                         |
 | Text Extraction   | pytesseract + PIL                |
 | Backend Handling  | Python                           |

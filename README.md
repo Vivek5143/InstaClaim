@@ -151,6 +151,8 @@ While this project draws **conceptual reference and learning inspiration** from 
 **InstaClaim has been independently customized and redesigned by Vivek Dalvi for the DSW Hackathon 2025**,  
 focusing specifically on the **insurance claim support domain** with added OCR, UI theming, and Phi3 LLM integration.
 
+---
+
 ## 🚀 Future Enhancements (Post Hackathon Plan)
 
 - ✅ Add **Multi-language support** for regional insurance documents
@@ -158,6 +160,7 @@ focusing specifically on the **insurance claim support domain** with added OCR, 
 - ✅ Deploy on **Cloud (AWS / GCP / Azure)** for broader user accessibility
 - ✅ Add **voice input support** for better accessibility
 
+---
 
 ## 📌 Important Notes for Judges / Panel Members
 

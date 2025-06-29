@@ -1,28 +1,17 @@
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chat_models import ChatOllama
-from langchain.schema import HumanMessage, AIMessage
-import urllib.request, json
+from langchain.schema import HumanMessage, AIMessage, SystemMessage
 import streamlit as st
 from PIL import Image
 import pytesseract
+import cv2
+import numpy as np
+import urllib.request
 
-# ✅ For Windows users - Set Tesseract OCR path
+# ✅ Set Tesseract OCR Path (For Windows users)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-# ✅ Fetch Ollama models (Optional: Here, only 'mistral' and 'phi3' for sidebar dropdown)
-@st.cache_resource
-def get_ollama_models(ollama_server_url):
-    api_tags = "/api/tags"
-    models = []
-    try:
-        with urllib.request.urlopen(ollama_server_url + api_tags) as tags:
-            response = json.load(tags)
-            models = [model['name'].replace(":latest", "") for model in response['models']]
-    except Exception as e:
-        st.error(f"Failed to connect to Ollama server. Error: {e}")
-    return tuple(models)
-
-# ✅ Custom Streamlit callback handler for token streaming
+# ✅ Streaming handler for LLM token output
 class StreamHandler(BaseCallbackHandler):
     def __init__(self, container, initial_text=""):
         self.container = container
@@ -32,76 +21,105 @@ class StreamHandler(BaseCallbackHandler):
         self.text += token
         self.container.markdown(self.text)
 
-# ✅ OCR image text extraction
+# ✅ Preprocess uploaded image (grayscale + threshold)
+def preprocess_streamlit_image(uploaded_file):
+    image = Image.open(uploaded_file).convert("RGB")
+    image_np = np.array(image)
+    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    return thresh
+
+# ✅ OCR Text Extraction
 def extract_text_from_image(uploaded_file):
     try:
-        image = Image.open(uploaded_file)
-        text = pytesseract.image_to_string(image)
+        preprocessed_image = preprocess_streamlit_image(uploaded_file)
+        text = pytesseract.image_to_string(preprocessed_image)
         return text
     except Exception as e:
         return f"Error reading image: {e}"
 
-# ✅ Streamlit UI
-st.title("Welcome to the InstaClaim")
+# ✅ Summarize long OCR text
+def summarize_text(text):
+    return text if len(text) <= 300 else f"Document Summary: {text[:300]}..."
+
+# ✅ Ollama Health Check Function
+def check_ollama_server(ollama_url="http://localhost:11434"):
+    try:
+        with urllib.request.urlopen(ollama_url) as response:
+            if response.status == 200:
+                return True
+    except Exception as e:
+        print(f"Ollama server check failed: {e}")
+    return False
+
+# ✅ App Title
+st.title("Welcome to InstaClaim - Your Insurance Claim Assistant")
 
 with st.sidebar:
-    st.header("Ollama Model Selection")
-    # ollama_server = st.text_input("Ollama API Server", value="http://localhost:11434")
-    allowed_models = ["phi3"]
-    ollama_model = st.selectbox("Choose Ollama Model", allowed_models, index=0)
+    st.header("Ollama Model Used")
+    ollama_model = "phi3:mini"  # Fixed model
+    st.markdown(f"**Using Model:** `{ollama_model}`")
 
-    st.markdown("""
-    Changing model won't clear chat history.  
-    Click below to clear chat history manually.
-    """)
     if st.button("Clear Chat History", type="primary"):
         st.session_state["messages"] = [
             AIMessage(content="Hello! I’m here to assist you with any insurance claim-related queries. 😊")
         ]
 
-# ✅ Initialize chat history
+# ✅ Initialize Chat History
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
         AIMessage(content="Hello! I’m here to assist you with any insurance claim-related queries. 😊")
     ]
 
-# ✅ Display Chat History with colored message bubbles
+# ✅ Display Chat History (Black & Gold UI)
 for msg in st.session_state.messages:
-    if msg.type == "human":
+    if isinstance(msg, HumanMessage):
         st.markdown(f"<div style='padding:10px; border-radius:8px; text-align:right;'>🙂 {msg.content}</div>", unsafe_allow_html=True)
-    else:
+    elif isinstance(msg, AIMessage):
         st.markdown(f"<div style='color:#FFD700; padding:10px; border-radius:8px;'>🤖 {msg.content}</div>", unsafe_allow_html=True)
 
-# ✅ File Upload Section
+# ✅ File Upload & Backend OCR Context Injection (No UI text display)
 with st.expander("📄 Upload Insurance Documents / Images (Optional)"):
     uploaded_file = st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
     if uploaded_file:
-        st.image(uploaded_file, use_column_width=True, caption="Uploaded Image Preview")
         extracted_text = extract_text_from_image(uploaded_file)
         if extracted_text.strip():
-            st.success("✅ Text extracted from image:")
-            st.text_area("Extracted Text:", value=extracted_text, height=150)
-            
-            # ✅ NEW: Append extracted text as Human Message for LLM context
-            st.session_state.messages.append(
-                HumanMessage(content=f"The user uploaded an insurance document with the following content:\n{extracted_text}")
-            )
-        else:
-            st.warning("⚠️ No readable text found in the image.")
+            summarized_text = summarize_text(extracted_text)
 
-# ✅ Chat input box (Must stay outside expander/columns)
+            # ✅ Remove old OCR system messages if any
+            st.session_state.messages = [
+                msg for msg in st.session_state.messages
+                if not (isinstance(msg, SystemMessage) and "uploaded an insurance document" in msg.content)
+            ]
+
+            # ✅ Inject OCR as SystemMessage (backend-only, not shown to user)
+            st.session_state.messages.insert(
+                0,
+                SystemMessage(content=f"The user has uploaded an insurance document containing the following details:\n{summarized_text}\nPlease use this information while answering any insurance-related queries.")
+            )
+            st.success("✅ Insurance document analyzed and context sent to AI.")
+        else:
+            st.warning("⚠️ No readable text found in the uploaded image.")
+
+# ✅ Chat Input (English-only)
 prompt = st.chat_input("Type your insurance-related query here...")
 
 if prompt:
     st.session_state.messages.append(HumanMessage(content=prompt))
     st.chat_message("user").write(prompt)
 
-    if not ollama_model:
-        st.warning("Please select a model in the sidebar.")
-        st.stop()
-
     with st.chat_message("assistant"):
+        # ✅ Ollama Server Health Check Before LLM Call
+        ollama_server_url = "http://localhost:11434"
+        if not check_ollama_server(ollama_server_url):
+            fallback_message = "🚫 Hey there! It looks like our AI assistant is temporarily down due to a technical issue with Ollama. Please try again in a few minutes. 😊"
+            st.warning(fallback_message)
+            st.session_state.messages.append(AIMessage(content=fallback_message))
+            st.stop()
+
+        # ✅ Stream LLM Response (limiting history for speed)
         stream_handler = StreamHandler(st.empty())
+        messages_for_llm = st.session_state.messages[-10:]
         llm = ChatOllama(model=ollama_model, streaming=True, callbacks=[stream_handler])
-        response = llm(st.session_state.messages)
+        response = llm(messages_for_llm)
         st.session_state.messages.append(AIMessage(content=response.content))

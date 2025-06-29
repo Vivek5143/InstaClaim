@@ -46,22 +46,46 @@ Filing an insurance claim is often **confusing**, **slow**, and **document-heavy
 
 ## 🧑‍💻 Installation & Run Locally
 
-```bash
-# Clone the repo
-git clone https://github.com/Vivek5143/instaclaim-insurance-chatbot.git
-cd instaclaim-insurance-chatbot
 
-# Setup virtual environment (For Windows users)
+1. Clone the project repository
+```
+git clone https://github.com/Vivek5143/instaclaim-insurance-chatbot.git
+cd InstaClaim
+```
+2. Create and activate a Virtual Environment (on Windows)
+```
 python -m venv .venv
 .\.venv\Scripts\activate
-
-# Install required libraries
+```
+3. Upgrade pip (optional but recommended)
+```
+python -m pip install --upgrade pip
+```
+4. Install all required Python dependencies
+```
 pip install -r requirements.txt
+```
+5. Download and Install Tesseract OCR (For Windows)
+👉 Download from: https://github.com/tesseract-ocr/tesseract
 
-# Run Ollama Server (Ensure Phi3 model is pulled)
+6. After installing Tesseract, configure its path inside your project:
+Edit your main.py file and set the path:
+Example path (adjust if installed in different location):
+```
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+```
+7. Download Ollama and start the Ollama server:
+👉 Download Ollama for Windows from: https://ollama.com/download
+Once installed, run the Ollama server (it will auto-start if installed properly):
+```
 ollama serve
-
-# Run Streamlit App
+```
+8. Pull the required Ollama LLM model (Phi3 Mini in your case)
+```
+ollama pull phi3:mini
+```
+9. Finally, run your Streamlit app locally
+```
 streamlit run main.py
 ```
 # 📝 Usage Instructions
